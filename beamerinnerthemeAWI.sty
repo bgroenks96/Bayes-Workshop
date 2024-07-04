@@ -1,0 +1,65 @@
+\mode<presentation>
+
+% \setbeamertemplate{background}{
+% 	\ifnum\thepage=1\relax%
+% 		\put(-0.11,-8.7){
+% 			\includegraphics[width=1.01\paperwidth]{Background_AWI.jpg}
+% 		}
+% 	\fi
+% }
+
+% Title page
+\defbeamertemplate*{title page}{AWI}[1][]{ 
+	\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+% 	\node[at=(current page.center)] {\includegraphics[keepaspectratio,width=\paperwidth,height=\paperheight]{Background_AWI.jpg}};
+	\draw[draw=none, fill=white, opacity=0.5,rounded corners=2mm] 	(-0.2,-0.4) -- (12.8,-0.4) -- (12.8,2.1) -- (-0.2,2.1) -- cycle;
+	\draw[draw=none, fill=white, opacity=0.7,rounded corners=2mm] 	(-0.2,-4) -- (12.8,-4) -- (12.8,-2.8) -- (-0.2,-2.8) -- cycle;
+	\node[anchor=north west,text width=0.9\textwidth, text depth=2mm] at (0,1) {\baselineskip=23pt\color{AWITiefBlau}\usebeamerfont{title}\inserttitle\par};
+	\node[anchor=north west,text width=0.9\textwidth, text depth=2mm] at (0,-2) {\baselineskip=17pt\color{AWIGrau1}\insertauthor\par};
+	\node[anchor=south west] at (0,-3.5) {\color{AWIGrau2}\insertdate};
+	
+	\node[anchor=north east] at (14.74,3.27) {\includegraphics[height=0.64cm]{logos/AWI_Logo_Farbe_RGB.png}};
+	\node[anchor=south east] at (14.8,-5.2) {\includegraphics[height=0.8cm]{logos/Hei_Logo_final-transparent_rgb.png}};
+
+\end{tikzpicture}
+
+}
+
+% Frame title
+\defbeamertemplate*{frametitle}{AWI}
+{
+	\vskip2.7mm%
+	\begin{beamercolorbox}[wd=\paperwidth,ht=1.22cm]{frametitle} 
+		\begin{tikzpicture}
+		    \node at (0,0) {~};
+		    \node at (17.5,1.18) {~};
+			\node[anchor= south west,font=\Large,text width=11cm, text depth=2mm] at (1,0){\insertframetitle};%
+			%\node[anchor= south west,font=\large] at (2,0){\textbf{\insertframesubtitle}};
+			\node[anchor= south east] at (15.42,-0.1){\includegraphics[height=0.68cm]{logos/AWI_WortBildmarke_Farbe_RGB.png}};
+			\draw[line width=0.03mm,  AWIGrau2] (0.36,0) -- (15.17,0);
+			\draw[line width=0.05mm,  black] (0.36,0.02) -- (15.17,0.02);
+		\end{tikzpicture}
+	\end{beamercolorbox}
+}
+
+% footline
+\defbeamertemplate*{footline}{AWI}
+{\vspace*{-4mm}\hspace{\beamer@leftmargin}%
+	\usebeamerfont{footline}%
+	\begin{beamercolorbox}[wd=\paperwidth,ht=0.7cm]{footline} 
+		\begin{tikzpicture}
+		\node at (0,0) {~};
+		\node at (14,0.8) {~};
+		\node[anchor= south west] at (0,0){\insertframenumber\,/\,\inserttotalframenumber};%
+		%\node[anchor= south west,font=\large] at (2,0){\textbf{\insertframesubtitle}};
+		\node[anchor= south east] at (14.6,0.1){\includegraphics[height=0.75cm]{logos/Hei_Logo_small.png}};
+		\end{tikzpicture}
+	\end{beamercolorbox}
+	%\vskip2mm
+}
+
+
+
+\mode
+<all>
