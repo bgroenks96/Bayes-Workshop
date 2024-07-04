@@ -317,6 +317,23 @@ Just like p-values, CIs represent **pre-observational probabilities** over the s
 
 \end{frame}
 
+
+### When to still be frequentist
+
+- Equivalent to the Bayesian solution (e.g. basic linear regression)
+\pause\newline
+- No prior information is available
+\pause\newline
+- Repeated (random) sampling is part of the problem
+\pause\newline
+- Sample and experimental design is well controlled
+
+\end{frame}
+
+### When to be Bayesian
+
+\end{frame}
+
 ### Bayes rule
 
 We can prove Bayes rule in just three lines!
@@ -467,17 +484,17 @@ The integral on the bottom is typically intractable for non-trivial models.
 
 \end{frame}
 
-% ### Markov Chain Monte Carlo
+### Markov Chain Monte Carlo
 
-% Enter... Markov Chain Monte Carlo! (MCMC)
-% \pause\newline
+Enter... Markov Chain Monte Carlo! (MCMC)
+\pause\newline
 
-% Basic idea: Sample numerically via a **random walk** in the space of $\theta$.
-% \pause\newline
+Basic idea: Sample numerically via a **random walk** in the space of $\theta$.
+\pause\newline
 
-% In the limit of infinite steps, the path of the walk will follow $P(\theta|\mathcal{D})$.
+In the limit of infinite steps, the path of the walk will follow $P(\theta|\mathcal{D})$.
 
-% \end{frame}
+\end{frame}
 
 % ### Markov Chain Monte Carlo
 
@@ -494,27 +511,41 @@ The integral on the bottom is typically intractable for non-trivial models.
 
 % \end{frame}
 
-% ### Markov Chain Monte Carlo
+### Markov Chain Monte Carlo
 
-% \begin{figure}
-%     \centering
-%     \includegraphics[scale=0.55]{figs/sampler-viz-nuts.png}
-%     \caption{NUTS sampler visualization (source: Turing.jl documentation)}
-% \end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.55]{figs/sampler-viz-nuts.png}
+    \caption{NUTS sampler visualization (source: Turing.jl documentation)}
+\end{figure}
 
-% \end{frame}
+\end{frame}
 
-% ### Interpreting the output
+### Interpreting the output
 
-% The output of MCMC is sequence of samples, typically referred to as a **chain**.
-% \pause
+The output of MCMC is sequence of samples, typically referred to as a **chain**.
+\pause
 
-% \begin{figure}
-%     \centering
-%     \includegraphics[scale=0.5]{figs/simple_chain.png}
-% \end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.5]{figs/simple_chain.png}
+\end{figure}
 
-% \end{frame}
+\end{frame}
+
+### Other inference methods
+
+- Variational inference
+\pause\newline
+- Sequential Monte Carlo
+\pause\newline
+- Importance sampling
+\pause\newline
+- Slice sampling
+\pause\newline
+- Grid search (for 1-2 parameter models)
+
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%
 
