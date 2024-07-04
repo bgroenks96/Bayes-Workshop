@@ -6,6 +6,7 @@
 \usepackage{mathpazo}
 \usepackage{eulervm}
 \usepackage{natbib}
+\usepackage{siunitx}
 
 %% Load the markdown package
 \usepackage[citations,footnotes,definitionLists,hashEnumerators,smartEllipses,tightLists=false,pipeTables,tableCaptions,hybrid]{markdown}
@@ -83,6 +84,13 @@
 }
 
 \section{Part I: A Tale of Two Statisticians}
+
+\begin{frame}{Probability according to Cicero}
+    \centering
+    \textit{``That is probable which for the most part usually comes to pass, or which is a part of the ordinary beliefs of mankind or which contains in itself some resemblance to these qualities, whether such resemblance be true or false.''}
+    - Cicero, ca. 80 BCE
+\end{frame}
+
 \begin{frame}{The Frequentist vs. The Bayesian}
     \textbf{The Frequentist} argues that probability is strictly defined by the \textit{frequency} of an event over an \textit{infinite} number of samples or experiments.
     \pause\newline
@@ -281,28 +289,6 @@ Just like p-values, CIs represent **pre-observational probabilities** over the s
 
 \end{frame}
 
-% ### Recommendations
-% - **Do not** use the phrase "statistically significant" when discussing your results.
-% \pause
-% - **Do not** equate "statistical significance" with *scientific significance*.
-% \pause
-% - **Do not** selectively show results based on $p$-values or confidence intervals.
-% \pause
-% - **Do not** highlight certain results as "statistically significant" based on their $p$-values or confidence intervals.
-
-% \end{frame}
-
-% ### Recommendations
-% - **Do** be careful and conservative with your interpretation of $p$-values and confidence intervals.
-% \pause
-% - **Do** be as transparent as possible when reporting statistical results.
-% \pause
-% - **Do** prefer problem-specific error metrics and goodness of fit measures like $R^2$ to $p$-values.
-% \pause
-% - **Do** use resampling or out-of-sample testing to assess robustness of your results.
-
-% \end{frame}
-
 ### This is confusing...
 - Interpreting p-values and confidence intervals is highly counter-intuitive.
 \pause\newline
@@ -313,7 +299,7 @@ Just like p-values, CIs represent **pre-observational probabilities** over the s
 - The basic theory of random sampling and relative frequency are deceptively intuitive...
 \pause\newline
 
-- ...but using the corresponding procedures to answer basic research questions is not!
+- ...but using the corresponding procedures to answer common research questions is actually not!
 
 \end{frame}
 
@@ -322,15 +308,50 @@ Just like p-values, CIs represent **pre-observational probabilities** over the s
 
 - Equivalent to the Bayesian solution (e.g. basic linear regression)
 \pause\newline
-- No prior information is available
+- No prior information is available (rarely the case)
 \pause\newline
-- Repeated (random) sampling is part of the problem
+- Repeated (random) sampling is built into the problem
 \pause\newline
-- Sample and experimental design is well controlled
+- Sampling distribution and experimental design are well controlled
+\pause\newline
+- Nonparametrics (e.g. bootstrapping) for large, high-dimensional datasets
+
+\end{frame}
+
+### Recommendations
+- **Do not** equate "statistical significance" with *scientific significance*.
+\pause
+- **Do not** selectively show results based on $p$-values or confidence intervals.
+\pause
+- **Do not** highlight certain results as "statistically significant" based on their $p$-values or confidence intervals.
+\pause
+- **Avoid** NHST in favor of either the more rigorous Neyman-Pearson theory or a Bayesian approach.
+
+\end{frame}
+
+### Recommendations
+- **Do** be careful and conservative with your interpretation of $p$-values and confidence intervals.
+\pause
+- **Do** be as transparent as possible when reporting statistical results.
+\pause
+- **Do** prefer problem-specific error metrics and goodness of fit measures like $R^2$ to $p$-values.
+\pause
+- **Do** use resampling or out-of-sample testing to assess robustness of your results.
 
 \end{frame}
 
 ### When to be Bayesian
+
+- Primary goal is to make inferences under uncertainty
+\pause\newline
+- Small, sparse, or partial data
+\pause\newline
+- Valuable prior information is available
+\pause\newline
+- Uncertainty quantification in non-standard models
+\pause\newline
+
+In general, it's good to be Bayesian by default :)
 
 \end{frame}
 
@@ -493,6 +514,12 @@ Basic idea: Sample numerically via a **random walk** in the space of $\theta$.
 \pause\newline
 
 In the limit of infinite steps, the path of the walk will follow $P(\theta|\mathcal{D})$.
+\pause\newline
+
+Unfortunately, this is often quite inefficient.
+\pause\newline
+
+Modern state-of-the-art samplers are typically variants \textbf{Hamiltonian Monte Carlo} (HMC) which require gradients.
 
 \end{frame}
 
@@ -511,7 +538,7 @@ In the limit of infinite steps, the path of the walk will follow $P(\theta|\math
 
 % \end{frame}
 
-### Markov Chain Monte Carlo
+### Hamiltonian Monte Carlo
 
 \begin{figure}
     \centering
@@ -523,55 +550,87 @@ In the limit of infinite steps, the path of the walk will follow $P(\theta|\math
 
 ### Interpreting the output
 
-The output of MCMC is sequence of samples, typically referred to as a **chain**.
+The output of MCMC and HMC algorithms is sequence of samples, typically referred to as a **chain** or a **trace**.
 \pause
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.5]{figs/simple_chain.png}
+    \includegraphics[scale=0.45]{figs/simple_chain.png}
 \end{figure}
 
 \end{frame}
 
-### Other inference methods
+\end{markdown}
 
-- Variational inference
+\begin{frame}{Overview of algorithms for Bayesian inference}
+    \begin{table}[]
+        \centering
+        \begin{tabular}{|p{3em}|p{5em}|p{5em}|p{6em}|p{6em}|}
+            \hline
+              & Forward runs & Gradients required? & Parallelizable? & Asymptotic convergence \\
+             \hline
+             MCMC & \numrange{e4}{e6} & No & No & Yes \\
+             HMC & \numrange{e3}{e5} & Yes & No & Yes \\
+             VI & \numrange{e2}{e4} & Yes & Batch & No \\
+             SMC & \numrange{e3}{e5} & No & Yes & Yes \\
+             EKS & \numrange{e3}{e4} & No & Yes & Gaussian \\
+             IS & \numrange{e1}{e3} & No & Yes & No \\
+             \hline
+        \end{tabular}
+        \label{tab:inference_algs}
+    \end{table}
+\end{frame}
+
+\begin{markdown}
+
+### Limitations and challenges
+Bayesian inference provides a flexible and intuitive framework for data analysis and generative modeling... **but**
+\pause
+
+- Choosing good priors can be difficult.
 \pause\newline
-- Sequential Monte Carlo
+- MCMC is computationally expensive, especially with large numbers of parameters.
 \pause\newline
-- Importance sampling
+- Practical analysis of the inference results can be time consuming.
 \pause\newline
-- Slice sampling
+- Software support is not as comprehensive as for ``classical'' frequentist analyses.
+
+\end{frame}
+
+### Coming up next...
+- Probabilistic programming
 \pause\newline
-- Grid search (for 1-2 parameter models)
+- Bayesian generalized linear models
+\pause\newline
+- Model diagnostics and criticism
+\pause\newline
+- Example application to observational data from the Arctic
+
+\end{frame}
+
+\end{markdown}
+
+\section{Part II: Bayes by example}
+
+\begin{frame}{Follow along!}
+
+Part II of the workshop consists of a series of Jupyter notebooks.
+\newline
+
+\begin{figure}
+\centering
+\includegraphics[width=0.25\textwidth]{figs/bayes_workshop_qr.png}
+\end{figure}
+
+You can directly open these notebooks on Google Colab if you do not want to bother setting up a new python environment!
 
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%
 
-# Part II: Bayesian inference by example
-
-### Follow along!
-
-\end{frame}
-
 %%novalidate
 
 % \section{Conclusion}
-
-% ### Limitations and challenges
-% Bayesian inference provides a flexible and intuitive framework for data analysis and generative modeling... **but**
-% \pause
-
-% - Choosing good priors can be difficult.
-% \pause\newline
-% - MCMC is computationally expensive, especially with large numbers of parameters.
-% \pause\newline
-% - Practical analysis of the inference results can be time consuming.
-% \pause\newline
-% - Software support is not as comprehensive as for ``classical'' frequentist analyses.
-
-% \end{frame}
 
 % ### Important topics not covered
 
@@ -587,8 +646,6 @@ The output of MCMC is sequence of samples, typically referred to as a **chain**.
 % Maybe next time? :)
 
 % \end{frame}
-
-\end{markdown}
 
 % \begin{frame}{A brief review of probability theory}
 
