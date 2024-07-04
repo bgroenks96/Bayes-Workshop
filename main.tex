@@ -87,8 +87,9 @@
 
 \begin{frame}{Probability according to Cicero}
     \centering
-    \textit{``That is probable which for the most part usually comes to pass, or which is a part of the ordinary beliefs of mankind or which contains in itself some resemblance to these qualities, whether such resemblance be true or false.''}
-    - Cicero, ca. 80 BCE
+    \textit{``That is probable which for the most part usually comes to pass, or which is a part of the ordinary beliefs of mankind, or which contains in itself some resemblance to these qualities, whether such resemblance be true or false.''}
+    
+    -- Cicero, ca. 80 BCE
 \end{frame}
 
 \begin{frame}{The Frequentist vs. The Bayesian}
@@ -256,7 +257,7 @@ These criticisms are not new...
 
 ### Problems with NHST
 
-...and have only continued over time:
+...and have continued over time:
 
 - Wasserstein RL, Schirm AL, Lazar NA. **Moving to a world beyond “p< 0.05”**. 2019.
 
@@ -275,11 +276,13 @@ These criticisms are not new...
 Confidence intervals are generally preferable to p-values.
 \pause
 
-However, they are still easy to misinterpret:
+However, they are still easy to misinterpret (Morey et al. 2015):
 
 1. A particular 95\% confidence interval does not have a 95\% probability of containing the true parameter value.
+\pause
 
 2. Smaller confidence intervals do not imply "more precise" results.
+\pause
 
 3. Confidence intervals do not correspond to plausible or likely parameter values.
 
@@ -342,11 +345,11 @@ Just like p-values, CIs represent **pre-observational probabilities** over the s
 
 ### When to be Bayesian
 
-- Primary goal is to make inferences under uncertainty
-\pause\newline
 - Small, sparse, or partial data
 \pause\newline
 - Valuable prior information is available
+\pause\newline
+- Ill-posed inverse problems
 \pause\newline
 - Uncertainty quantification in non-standard models
 \pause\newline
@@ -579,6 +582,24 @@ The output of MCMC and HMC algorithms is sequence of samples, typically referred
         \end{tabular}
         \label{tab:inference_algs}
     \end{table}
+\end{frame}
+
+\begin{frame}{Use case: Multi-site trend analysis}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/trend_comparison_ByBaSaPa.pdf}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}{Use case: Surface temperature reconstruction}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figs/Tsurf_linear_vs_periodic_sardakh.pdf}
+\end{figure}
+
 \end{frame}
 
 \begin{markdown}
