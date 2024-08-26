@@ -144,7 +144,7 @@ Common practice "null hypothesis significance test" (NHST) inference:
 
 \end{frame}
 
-### Problems with NHST
+### Criticisms of NHST
 
 There are several problems with this procedure.
 \pause\newline
@@ -192,21 +192,20 @@ There are several problems with this procedure.
 
 % \end{frame}
 
-### Problems with NHST
+### Criticisms of NHST
 
 3. Inference based on a test statistic $\tilde{z}$ is inference based on **hypothetical data** that was never observed.
 
-- The null distribution $P(\tilde{z}|H_0)$ represents an **assumed distribution over data**, not over the hypothesis itself.
+The null distribution $P(\tilde{z}|H_0)$ represents an **assumed distribution over data**.
 \pause\newline
 
-- The $p$-value is the probability of observing your data or something "more extreme" under this distribution.
-\pause\newline
+>\noindent``What the use of p-values implies, therefore, is that a hypothesis that may be true may be rejected because it has not predicted observable results that have not occurred. This seems a remarkable procedure.''
 
-- Inference based on this probability implicitly conditions on hypothetical data that was never observed!
+\centering -- Harold Jeffreys (1961, p. 385)
 
 \end{frame}
 
-### Problems with NHST
+### Criticisms of NHST
 
 4. Pre-defined hypothesis test procedures often make a wide range of assumptions about the data.
 \pause
@@ -222,7 +221,7 @@ There are several problems with this procedure.
 
 \end{frame}
 
-### Problems with NHST
+### Criticisms of NHST
 
 5. Uncertainties expressed in the limit of infinite samples are often not helpful.
 \pause
@@ -241,7 +240,7 @@ and not against hypothetical data that was never observed (see The Likelihood Pr
 
 \end{frame}
 
-### Problems with NHST
+### Criticisms of NHST
 
 These criticisms are not new...
 
@@ -255,7 +254,7 @@ These criticisms are not new...
 
 \end{frame}
 
-### Problems with NHST
+### Criticisms of NHST
 
 ...and have continued over time:
 
@@ -284,7 +283,7 @@ However, they are still easy to misinterpret (Morey et al. 2015):
 2. Smaller confidence intervals do not imply "more precise" results.
 \pause
 
-3. Confidence intervals do not correspond to plausible or likely parameter values.
+3. Confidence intervals do not necessarily correspond to plausible or likely parameter values.
 
 \pause
 
@@ -311,9 +310,9 @@ Just like p-values, CIs represent **pre-observational probabilities** over the s
 
 - Equivalent to the Bayesian solution (e.g. basic linear regression)
 \pause\newline
-- No prior information is available (rarely the case)
+- No meaningful prior information is available
 \pause\newline
-- Repeated (random) sampling is built into the problem
+- Repeated (random) sampling is a feature of the problem
 \pause\newline
 - Sampling distribution and experimental design are well controlled
 \pause\newline
@@ -566,18 +565,34 @@ The output of MCMC and HMC algorithms is sequence of samples, typically referred
 \end{markdown}
 
 \begin{frame}{Overview of algorithms for Bayesian inference}
+
+    \begin{itemize}[<+->]
+        \item Markov Chain Monte Carlo (MCMC)
+        \newline
+        \item Hamiltonian Monte Carlo (HMC)
+        \newline
+        \item Variational inference (VI)
+        \newline
+        \item Sequential Monte Carlo (SMC)
+        \newline
+        \item Ensemble Kalman Sampling (EKS)
+    \end{itemize}
+    
+\end{frame}
+
+\begin{frame}{Overview of algorithms for Bayesian inference}
     \begin{table}[]
         \centering
         \begin{tabular}{|p{3em}|p{5em}|p{5em}|p{6em}|p{6em}|}
             \hline
-              & Forward runs & Gradients required? & Parallelizable? & Asymptotic convergence \\
+              & Forward runs & Gradients required & Parallelizable & Asymptotic convergence \\
              \hline
              MCMC & \numrange{e4}{e6} & No & No & Yes \\
              HMC & \numrange{e3}{e5} & Yes & No & Yes \\
              VI & \numrange{e2}{e4} & Yes & Batch & No \\
              SMC & \numrange{e3}{e5} & No & Yes & Yes \\
              EKS & \numrange{e3}{e4} & No & Yes & Gaussian \\
-             IS & \numrange{e1}{e3} & No & Yes & No \\
+             % IS & \numrange{e1}{e3} & No & Yes & No \\
              \hline
         \end{tabular}
         \label{tab:inference_algs}
@@ -589,6 +604,15 @@ The output of MCMC and HMC algorithms is sequence of samples, typically referred
 \begin{figure}
     \centering
     \includegraphics[width=0.9\textwidth]{figs/trend_comparison_ByBaSaPa.pdf}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}{Use case: Inverse modeling of heat transfer with EKS}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figs/Ts_combined_obs_vs_model_cropped.png}
 \end{figure}
 
 \end{frame}
@@ -605,7 +629,7 @@ The output of MCMC and HMC algorithms is sequence of samples, typically referred
 \begin{markdown}
 
 ### Limitations and challenges
-Bayesian inference provides a flexible and intuitive framework for data analysis and generative modeling... **but**
+Bayesian inference provides a flexible and intuitive framework for solving inverse problems and building generative models... **but**
 \pause
 
 - Choosing good priors can be difficult.
