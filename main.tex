@@ -1,5 +1,6 @@
 \documentclass[12pt,aspectratio=169]{beamer}
 
+\usetheme{AWI}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{mathabx}
@@ -7,6 +8,7 @@
 \usepackage{eulervm}
 \usepackage{natbib}
 \usepackage{siunitx}
+\usepackage{verbatim}
 
 %% Load the markdown package
 \usepackage[citations,footnotes,definitionLists,hashEnumerators,smartEllipses,tightLists=false,pipeTables,tableCaptions,hybrid]{markdown}
@@ -21,7 +23,6 @@
 }}
 %%end novalidate
 
-\usetheme{AWI}
 \usepackage{appendixnumberbeamer}
 \usepackage{amsmath}
 \usepackage{booktabs}
@@ -31,6 +32,7 @@
 \usepackage{pgfplots}
 \usepgfplotslibrary{dateplot}
 \usepackage{xspace}
+\usepackage{caption}
 
 \usetheme[progressbar=frametitle]{metropolis}
 
@@ -64,482 +66,793 @@
 \newcommand{\mbf}[1]{\mathbf{#1}}
 \newcommand{\T}{\intercal}
 \newcommand{\norm}[1]{\left\lVert{#1}\right\rVert}
+\newcommand{\prob}{\text{Pr}}
 
 \unitlength=1cm
 
-\title{A gentle introduction to Bayesian statistics and modeling - Part I}
+\title{A gentle introduction to Bayesian statistics and probabilistic modeling}
+\subtitle{Part I: Theory and practical guidelines}
 \author{Brian Groenke}
-\date{July 2024}
+\date{May 2025}
 
 \begin{document}
 \maketitle
 \addtocounter{framenumber}{-1}
 
-\AtBeginSection[]
-{
-    \begin{frame}
-        \frametitle{Table of Contents}
-        \tableofcontents[currentsection]
-    \end{frame}
-}
+% \AtBeginSection[]
+% {
+%     \begin{frame}
+%         \frametitle{Table of Contents}
+%         \tableofcontents[currentsection]
+%     \end{frame}
+% }
 
-\section{Part I: A Tale of Two Statisticians}
-
-\begin{frame}{Probability according to Cicero}
+\begin{frame}{Plausible reasoning}
+    % \begin{quote}
+    %     Suppose some dark night a policeman walks down a street, apparently deserted. Suddenly he hears a burglar alarm, looks across the street, and sees a jewelry store with a broken window. Then a gentleman wearing a mask comes crawling out through the broken window, carrying a bag which turns out to be full of expensive jewelry. The policeman doesn’t hesitate at all in deciding that this gentleman is dishonest. But by what reasoning process does he arrive at this conclusion?
+    % \end{quote}
     \centering
-    \textit{``That is probable which for the most part usually comes to pass, or which is a part of the ordinary beliefs of mankind, or which contains in itself some resemblance to these qualities, whether such resemblance be true or false.''}
+    \includegraphics[width=0.6\textwidth]{figs/cop_burglar_girl_daughter_work.jpg}
+\end{frame}
+
+\begin{frame}{Reasoning under uncertainty}
+    \begin{center}
+    \begin{quote}
+    \textbf{Statistics is essentially the study of uncertainty}, and [...] the statistician's role is to assist workers in other fields, the clients, who encounter uncertainty in their work.
+    \end{quote}
+
+    -- Dennis Lindley \small{in \textit{The Philosophy of Statistics} (2000)}
+    \end{center}
+    \pause
+
+    But how do we \textit{measure} or \textit{quantify} uncertainty?
+    \pause\newline
+
+    ...with \textbf{probability}
+\end{frame}
+
+\section{What is probability, really?}
+
+\begin{frame}{Probability in antiquity}
+    \centering
+    \begin{quote}
+    ``That is probable which for the most part usually comes to pass, or which is a part of the ordinary beliefs of mankind, or which contains in itself some resemblance to these qualities, whether such resemblance be true or false.''
+    \end{quote}
     
     -- Cicero, ca. 80 BCE
 \end{frame}
 
-\begin{frame}{The Frequentist vs. The Bayesian}
-    \textbf{The Frequentist} argues that probability is strictly defined by the \textit{frequency} of an event over an \textit{infinite} number of samples or experiments.
+\begin{frame}{The classical formulation}
+    The probability of an event $A$ is defined as
+    $$
+    \prob(A) = \frac{\text{\# of ways $A$ can occur}}{\text{\# of possible outcomes}}
+    $$
     \pause\newline
+
+    \textbf{Pros}
     
-    \textbf{The Bayesian} argues that probability quantifies our \textbf{uncertainty} about a prediction, parameter, or hypothesis.
+    Intuitive, works well for dice, card games, etc.
     \pause\newline
+
+    \textbf{Cons}
     
-    For the Frequentist, the "true" (population) parameters are fixed while the observed data (samples) are random.
+    Doesn't generalize; what if not all outcomes are equally likely?
+\end{frame}
+
+\begin{frame}{The frequency formulation}
+     The most common definition is in terms of \textbf{relative frequency},
+     \pause
+     
+     $$
+     \prob(A) = \underset{n \rightarrow \infty}{\lim} \frac{n_A}{n}
+     $$
+     
+     where $n_A$ is the number of occurrences of $A$.
+     \pause
+
+     \textbf{Pros}
+     \begin{itemize}[<+->]
+         \item Matches intuitions about many physical systems
+         \item Empirically measurable in controlled experiments
+     \end{itemize}
+     \pause
+
+     \textbf{Cons}
+     \begin{itemize}[<+->]
+         \item Doesn't allow assignment of probabilities to single, rare, or past events
+         \item Based on circular reasoning
+     \end{itemize}
+     
+\end{frame}
+
+\begin{frame}{The subjective formulation}
+    Probability is a merely an expression of \textbf{belief}
     \pause\newline
+
+    Assigned probabilities correspond to ``betting odds'' on outcomes
+    \pause\newline
+
+    Must follow some basic rules in order to be consistent
+    \pause\newline
+
+    \textbf{Pros}
+
+    Universally applicable and logically coherent
+    \pause
+
+    \textbf{Cons}
+
+    How can such probabilities be verified? How can we know they are \textit{useful}? 
     
-    For the Bayesian, all variables are random variables, including the parameters!
-\end{frame}  
+\end{frame}
+
+\begin{frame}{Probability as logic}
+
+    Richard Cox (1979) and Edwin Jaynes (1995) showed how probability can be viewed as a \textit{system of logic} for reasoning under uncertainty
+    \pause\newline
+
+    Let $A$ and $B$ denote sets of outcomes or, more generally, \textit{propositions}
+    \pause\newline
+
+    $A, B \equiv A \cap B$ is the \textit{conjunction} (logical AND)
+    \pause\newline
+
+    $A + B \equiv A \cup B$ is the \textit{disjunction} (logical OR)
+    \pause\newline
+
+    $\bar{A}$ is the logical \textit{complement} (NOT)
+\end{frame}
+
+\begin{frame}{Probability as logic}
+    We can derive three basic rules:
+    \pause
+
+    \textbf{Sum rule}
+
+    $$ \prob(A\mid B) + \prob(A\mid\bar{B}) = 1$$
+    \pause
+    \textbf{Product rule}
+
+    $$ \prob(A,B) = \prob(A\mid B) \prob(B) $$
+    \pause
+    \textbf{Generalized sum rule}
+
+    $$ \prob(A + B) = \prob(A) + \prob(B) - \prob(A,B)$$
+\end{frame}
+
+\begin{frame}{Bayes' theorem}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{align*}
+                \action<+->{\prob(A,B) &= \prob(B,A)} \\
+                \action<+->{\prob(A \mid B)P(B) &= \prob(B\mid A)P(A)} \\
+                \action<+->{\prob(A \mid B) &= \frac{\prob(B\mid A)P(A)}{P(B)}}
+            \end{align*}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.8\textwidth]{figs/Thomas-Bayes-1024x1061.jpg}
+                \caption*{The Reverend Thomas Bayes}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Statistical inference via Bayes' rule}
+    Let $\mathcal{H}$ be a hypothesis and $\mathcal{D}$ be some observed data
+    \pause\newline
+
+    Bayes' theorem tells us that we can make \textbf{inferences} about $\mathcal{H}$ \textit{given} $\mathcal{D}$,
+
+    $$
+    \prob(\mathcal{H} \mid \mathcal{D}) = \frac{\prob(\mathcal{D}\mid \mathcal{H})\prob(\mathcal{H})}{\prob(\mathcal{D})}\,.
+    $$
+    \pause
+
+    $\prob(\mathcal{H})$ is the \textbf{prior} probability
+    \pause
+
+    $\prob(\mathcal{D} \mid \mathcal{H})$ is the \textbf{sampling} probability (or \textit{likelihood})
+    \pause
+
+    $\prob(\mathcal{H} \mid \mathcal{D})$ is the \textbf{posterior} probability
+\end{frame}
+
+\section{A tale of two statisticians}
 
 \begin{frame}{The Frequentist vs. The Bayesian}
-    \begin{figure}
+    \textbf{The Frequentist} strictly follows the \textit{frequency} definition of probability
+    \pause
+
+    Under this interpretation, $\prob(\mathcal{H})$ isn't necessarily well defined
+    \pause
+
+    Thus, it only make sense to reason about $\prob(\mathcal{D} \mid \mathcal{H})$
+    \pause\newline
+    
+    \textbf{The Bayesian} follows the more general \textit{subjective} or \textit{logical} definitions
+    \pause
+
+    Probability is simply a quantitative measure of \textit{uncertainty}
+    \pause
+
+    For the Bayesian, frequency-based probability is a special case
+\end{frame}
+
+\begin{frame}{Cliché but helpful: Disease testing}
+    Let $\mathcal{D} = \text{positive}$ be the test result for a disease
+    \pause\newline
+
+    Suppose the \textbf{sensitivity} of the test is $\prob(\text{positive} \mid \text{sick}) = 99\%$ and the \textbf{false positive rate} is $\prob(\text{positive} \mid \text{not sick}) = 5\%$
+    \pause\newline
+
+    How likely is it that the patient has the disease?
+    \pause\newline
+
+    Answer: We don't have enough information!
+    
+\end{frame}
+
+\begin{frame}{Cliché but helpful: Disease testing}
+    Suppose the disease is known to affect 1 in 100 people
+    \pause\newline
+
+    In a group of \textbf{10,000} people, \textbf{100} would be expected to have the disease
+    \pause
+
+    99\% of the \textbf{100 sick} people would be expected to test positive
+    \pause
+
+    5\% of the \textbf{9900 healthy} people would also test positive
+    \pause\newline
+
+    What is the probability that someone is sick given a positive test?
+    \pause
+    $$
+    \prob(\text{sick} \mid \text{positive}) = \frac{99}{990/2 + 99} \approx 0.17 \times 100 = 17\%
+    $$
+    
+\end{frame}
+
+\begin{frame}{Cliché but helpful: Disease testing}
+    \begin{table}[]
         \centering
-        \includegraphics[scale=0.44]{figs/frequentists_vs_bayesians_landscape.png}
-    \end{figure}
+        \begin{tabular}{l|c|c|c}
+             \toprule
+             $\mathcal{H}$ & $\prob(\mathcal{H})$ & $\prob(\text{positive} \mid \mathcal{H})$ & $\prob(\text{positive}\mid
+             \mathcal{H})\prob(\mathcal{H})$ \\
+             \midrule
+             sick & 0.01 & 0.99 & 0.0099  \\
+             not sick & 0.99 & 0.05 & 0.0495 \\
+             \bottomrule
+        \end{tabular}
+    \end{table}
+
+    \begin{align*}
+    \prob(\text{sick} \mid \text{positive}) &= \frac{\prob(\text{positive} \mid \text{sick})\prob(\text{sick})}{\prob(\text{positive})} \\
+    &= \frac{0.099}{0.0099 + 0.099} \approx 0.17
+    \end{align*}
+    \pause
+
+    Failing to account for $\prob(\text{sick})$ is called \textbf{base rate neglect}
 \end{frame}
 
-\begin{markdown}
+\begin{frame}{The more general case}
+    % Our two statisticians would so far be in agreement
+    % \pause\newline
 
-### Frequentist inference
+    Suppose we have a regression problem $\mathbf{y} = \beta\mathbf{x}$
+    \pause\newline
 
-Under the frequentist interpretation of probability, the parameters of the population are fixed quantities to be estimated.
-\pause\newline
+    Our hypothesis is now about the unknown parameter $\beta$
+    \pause\newline
 
-The frequentist is therefore prohibited from making *probabilistic* statements about parameters and hypotheses.
-\pause\newline
+    For the Bayesian, nothing really changes:
+    $$
+    p(\beta \mid \mathbf{y}) = \frac{p(\mathbf{y}\mid \beta)p(\beta)}{\int p(\mathbf{y}\mid\beta^\prime)p(\beta^\prime)d\beta^\prime}
+    $$
+    \pause
 
-Probabilities and uncertainties can only be expressed in terms of *repeated sampling* from some target population.
-
+    But the Frequentist would object that $\beta$ cannot have a probability
 \end{frame}
 
-### Null hypothesis significance testing
+% \begin{frame}{The Frequentists}
+    
+% \end{frame}
 
-Common practice "null hypothesis significance test" (NHST) inference:
-\pause
+% \begin{frame}{The Bayesians}
+    
+% \end{frame}
 
-1. Define your experiment, along with the relevant **null** ($H\_0$) and **alternative** ($H_A$) hypotheses, and collect your data.
-\pause\newline
+% \begin{frame}{The Frequentist vs. The Bayesian}
+%     \begin{figure}
+%         \centering
+%         \includegraphics[scale=0.44]{figs/frequentists_vs_bayesians_landscape.png}
+%     \end{figure}
+% \end{frame}
 
-3. Compute the relevant *test statistic* $\tilde{z}$ for your null hypothesis.
-\pause\newline
+% ### Frequentist inference
 
-4. Compute the $p$-value $p = P(\tilde{z}|H_0)$, i.e. the probability of the observed test statistic under the null distribution.
-\pause\newline
-
-5. Reject $H_0$ if $p < \alpha$ where $\alpha$ is an arbitrary significance threshold.
-
-\end{frame}
-
-### Criticisms of NHST
-
-There are several problems with this procedure.
-\pause\newline
-
-1. The $p$-value, $p=P(\tilde{z}|H_0)$, is misleading.
-\pause
-
-- It is **not** the probability of the null hypothesis being "true"; this would be $P(H_0|\mathcal{D})$
-\pause
-- It is **not** the probability that your data was produced by "random chance".
-\pause
-- It does **not** imply anything about the size of the effect!
-\pause
-- It says **nothing** about the alternative hypothesis, $H_A$.
-
-\end{frame}
-
-### Problems with NHST
-
-2. The null hypothesis is almost never true.
-\pause\newline
-
-- When is the "true" linear relationship between two values ever *exactly* zero?
-\pause\newline
-
-- When is the "true" difference between means every *exactly* zero?
-\pause\newline
-
-- What is the point of falsifying something that we know *a priori* must be false?
-
-\end{frame}
-
-% ### Problems with NHST
-
-% 3. The alternative hypothesis is never actually evaluated.
+% Under the frequentist interpretation of probability, the parameters of the population are fixed quantities to be estimated.
 % \pause\newline
 
-% - The null hypothesis is not interesting.
+% The frequentist is therefore prohibited from making *probabilistic* statements about parameters and hypotheses.
 % \pause\newline
 
-% - We care more about $H_A$.
-% \pause\newline
-
-% - So why is this never actually evaluated?
+% Probabilities and uncertainties can only be expressed in terms of *repeated sampling* from some target population.
 
 % \end{frame}
 
-### Criticisms of NHST
+\begin{frame}{Null hypothesis significance testing}
 
-3. Inference based on a test statistic $\tilde{z}$ is inference based on **hypothetical data** that was never observed.
-
-The null distribution $P(\tilde{z}|H_0)$ represents an **assumed distribution over data**.
-\pause\newline
-
->\noindent``What the use of p-values implies, therefore, is that a hypothesis that may be true may be rejected because it has not predicted observable results that have not occurred. This seems a remarkable procedure.''
-
-\centering -- Harold Jeffreys (1961, p. 385)
-
-\end{frame}
-
-### Criticisms of NHST
-
-4. Pre-defined hypothesis test procedures often make a wide range of assumptions about the data.
-\pause
-
-#### Student's t-test assumptions
-
-- The sample mean is normally distributed.
-- The sample variance is $\chi^2$ distributed (or the samples are normally distributed).
-- The sample mean and sample variance are independent.
-- The variances of both populations are equal (relaxed for Welch's t-test).
-
----
+\begin{enumerate}
+    \item Define your experiment, along with the relevant \textbf{null} ($\mathcal{H}_0$) and (implicit) \textbf{alternative} ($\mathcal{H}_A$) hypotheses
+    \newline
+    \item Collect your data
+    \newline
+    \item Compute the relevant \textit{test statistic} $\hat{s}$ from the data
+    \newline
+    \item Compute the so-called ``$p$-value'' $p = \prob(s > \hat{s} \mid \mathcal{H}_0)$, i.e. the probability of observing a statistic \textit{more extreme} than what you saw
+    \newline
+    \item Reject $\mathcal{H}_0$ if $p < \alpha$ where $\alpha$ is an arbitrary ``significance'' level.
+\end{enumerate}
 
 \end{frame}
 
-### Criticisms of NHST
+\begin{frame}{Criticisms of NHST}
 
-5. Uncertainties expressed in the limit of infinite samples are often not helpful.
+1. The $p$-value, $p = \prob(s > \hat{s} \mid \mathcal{H}_0)$, is often misinterpreted
 \pause
 
-- We never have infinite data.
+\begin{itemize}[<+->]
+    \item It is \textbf{not} the probability of the null hypothesis being ``true''
+     \newline
+    \item It is \textbf{not} the probability that your data was produced by ``random chance''
+     \newline
+    \item It does \textbf{not} imply anything about the size of the effect (e.g., $\beta$)
+     \newline
+    \item It says nothing about the alternative hypothesis
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Problems with NHST}
+
+2. The null hypothesis \textbf{is never true}
 \pause\newline
 
-- In many areas of study such as geoscience, we have very little control over the data generating process.
+\begin{itemize}[<+->]
+    \item When is the ``true'' linear relationship between two values ever exactly zero?
+    \newline
+    \item When is the ``true'' difference between two groups every exactly zero?
+     \newline
+    \item Why should we think that such simple models are ``true'' in the first place?
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Problems with NHST}
+
+2a. ``Significance'' of the p-value depends on the sample size
 \pause\newline
 
-% - Data should be used to validate our hypotheses about how complex systems functions.
+For linear regression, the t-statistic is calculated as
+\begin{equation*}
+t = \frac{\hat{\beta} - \beta_0}{\text{SE}(\hat{\beta})}
+\end{equation*}
+where the standard error $\text{SE}(\hat{\beta})$ increases with $n$
+\pause\newline
+
+This means that, as $n \rightarrow \infty$, \textbf{all effects become significant}
+
+\end{frame}
+
+\begin{frame}{Criticisms of NHST}
+
+3. NHST performs inference about a test statistic $\tilde{s}$ based on \textbf{hypothetical data that was never observed}
+\pause\newline
+
+% The null distribution $\prob(\tilde{s} \mid H_0)$ is a \textbf{distribution over the test statistic}
+
+\begin{quote}
+\noindent``What the use of p-values implies, therefore, is that a hypothesis that may be true may be rejected because it has not predicted observable results that have not occurred. This seems a remarkable procedure.''
+
+\centering -- Harold Jeffreys (1961, p. 385)    
+\end{quote}
+
+\end{frame}
+
+\begin{frame}{Criticisms of NHST}
+
+4. Statistical test procedures make \textbf{non-obvious assumptions}
+\pause
+
+\textbf{Student's t-test assumptions}
+
+\begin{itemize}
+\item The sample mean is normally distributed
+\item The sample variance is $\chi^2$ distributed (or the samples are normally distributed)
+\item The sample mean and sample variance are independent
+\item The variances of both populations are equal (relaxed for Welch's t-test)
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Criticisms of NHST}
+
+5. NHST inferences are based on a \textbf{logical fallacy}
+\pause\newline
+
+Observing an unlikely event/sample is not evidence against a hypothesis
+\pause\newline
+
+We have to compare how well the data supports $\mathcal{H}_A$ vs. $\mathcal{H}_0$
+\pause\newline
+
+Unlikely data under the null is not evidence for an alternative
+
+\end{frame}
+
+% \begin{frame}{Criticisms of NHST}
+
+% 5. Uncertainty is only expressed in terms of finite samples
 % \pause\newline
 
-- Uncertainty should be quantified in terms of **how well our hypotheses fit the data we actually have** and not in terms of hypothetical data that we do not have (see The Likelihood Principle).
+% In the Earth sciences, data is often \textbf{observational}
+% \begin{itemize}[<+->]
+%     \item It is always finite (obviously)
+%     \item Very little control over the data-generating process
+%     \item We want to make inferences about non-frequency related things
+%     \item Often not clear what ``repeated sampling'' actually means
+% \end{itemize}
 
-\end{frame}
+% \end{frame}
 
-### Criticisms of NHST
+\begin{frame}{What about confidence intervals?}
 
-These criticisms are not new...
-
-- Berkson J. **Some difficulties of interpretation encountered in the application of the chi-square test.** Journal of the American Statistical Association. 1938.
-
-- Rozeboom WW. **The fallacy of the null-hypothesis significance test.** Psychological bulletin. 1960.
-
-- Berger JO, Sellke T. **Testing a point null hypothesis: The irreconcilability of p values and evidence.** Journal of the American statistical Association. 1987.
-
-- Johnson DH. **The insignificance of statistical significance testing.** The journal of wildlife management. 1999.
-
-\end{frame}
-
-### Criticisms of NHST
-
-...and have continued over time:
-
-- Wasserstein RL, Schirm AL, Lazar NA. **Moving to a world beyond “p< 0.05”**. 2019.
-
-- Amrhein V, Greenland S, McShane B. **Scientists rise up against statistical significance.** Nature. 2019 Mar;567(7748):305-7.
-
-- Gelman A, Stern H. **The difference between “significant” and “not significant” is not itself statistically significant.** The American Statistician. 2006 Nov 1;60(4):328-31.
-
-% - McShane BB, Gal D, Gelman A, Robert C, Tackett JL. Abandon statistical significance. The American Statistician. 2019 Mar 29;73(sup1):235-45.
-
-- Vasishth S, Mertzen D, Jäger LA, Gelman A. **The statistical significance filter leads to overoptimistic expectations of replicability.** Journal of Memory and Language. 2018 Dec 1;103:151-75.
-
-\end{frame}
-
-### What about confidence intervals?
-
-Confidence intervals are generally preferable to p-values.
+Confidence intervals are generally preferable to p-values
 \pause
 
 However, they are still easy to misinterpret (Morey et al. 2015):
 
-1. A particular 95\% confidence interval does not have a 95\% probability of containing the true parameter value.
-\pause
-
-2. Smaller confidence intervals do not imply "more precise" results.
-\pause
-
-3. Confidence intervals do not necessarily correspond to plausible or likely parameter values.
-
-\pause
-
-Just like p-values, CIs represent **pre-observational probabilities** over the sampling procedure itself.
+\begin{enumerate}[<+->]
+    \item A particular 95\% confidence interval \textbf{does not} have a 95\% probability of containing the true parameter value
+    \newline
+    \item Smaller confidence intervals \textbf{do not} imply "more precise" results
+    \newline
+    \item Confidence intervals \textbf{do not} necessarily correspond to plausible or likely parameter values
+\end{enumerate}
 
 \end{frame}
 
-### This is confusing...
-- Interpreting p-values and confidence intervals is highly counter-intuitive.
-\pause\newline
+\begin{frame}{Criticisms of NHST}
 
-- "Significance" testing forces researchers to make arbitrary "decisions" about their data that are not necessary.
-\pause\newline
+\textbf{These criticisms are not new...}
 
-- The basic theory of random sampling and relative frequency are deceptively intuitive...
-\pause\newline
+Berkson J. Some difficulties of interpretation encountered in the application of the chi-square test. Journal of the American Statistical Association. \textbf{1938}.
 
-- ...but using the corresponding procedures to answer common research questions is actually not!
+Rozeboom WW. The fallacy of the null-hypothesis significance test. Psychological bulletin. \textbf{1960}.
 
-\end{frame}
+Berger JO, Sellke T. Testing a point null hypothesis: The irreconcilability of p values and evidence. Journal of the American statistical Association. \textbf{1987}.
 
-
-### When to still be frequentist
-
-- Equivalent to the Bayesian solution (e.g. basic linear regression)
-\pause\newline
-- No meaningful prior information is available
-\pause\newline
-- Repeated (random) sampling is a feature of the problem
-\pause\newline
-- Sampling distribution and experimental design are well controlled
-\pause\newline
-- Nonparametrics (e.g. bootstrapping) for large, high-dimensional datasets
+Johnson DH. The insignificance of statistical significance testing. The journal of wildlife management. \textbf{1999}.
 
 \end{frame}
 
-### Recommendations
-- **Do not** equate "statistical significance" with *scientific significance*.
-\pause
-- **Do not** selectively show results based on $p$-values or confidence intervals.
-\pause
-- **Do not** highlight certain results as "statistically significant" based on their $p$-values or confidence intervals.
-\pause
-- **Avoid** NHST in favor of either the more rigorous Neyman-Pearson theory or a Bayesian approach.
+\begin{frame}{Criticisms of NHST}
+
+\textbf{...and have continued over time}
+
+Gelman A, Stern H. The difference between “significant” and “not significant” is not itself statistically significant. The American Statistician. \textbf{2006}.
+
+% McShane BB, Gal D, Gelman A, Robert C, Tackett JL. Abandon statistical significance. The American Statistician. 2019 Mar 29;73(sup1):235-45.
+
+Vasishth S, Mertzen D, Jäger LA, Gelman A. The statistical significance filter leads to overoptimistic expectations of replicability. Journal of Memory and Language. \textbf{2018}.
+
+Wasserstein RL, Schirm AL, Lazar NA. Moving to a world beyond “p< 0.05”. \textbf{2019}.
+
+Amrhein V, Greenland S, McShane B. Scientists rise up against statistical significance. Nature. \textbf{2019}.
 
 \end{frame}
 
-### Recommendations
-- **Do** be careful and conservative with your interpretation of $p$-values and confidence intervals.
-\pause
-- **Do** be as transparent as possible when reporting statistical results.
-\pause
-- **Do** prefer problem-specific error metrics and goodness of fit measures like $R^2$ to $p$-values.
-\pause
-- **Do** use resampling or out-of-sample testing to assess robustness of your results.
+\begin{frame}{Remarks on correlation analysis}
+    Linear (Pearson) correlation is one of the \textbf{most widely used} statistical analyses
+    \pause
 
+    It is also one of the \textbf{least interesting}
+    \pause
+
+    Before analyzing pairwise correlations, consider the following:
+    \begin{itemize}[<+->]
+        \item Are any of the variables \textbf{categorical}?
+        \item Do pairwise scatter plots show clear \textbf{nonlinear} patterns?
+        \item Do any of the variables show clear signs of \textbf{non-normality} (e.g., skewed/heavy-tailed distributions)?
+        \item Are any of the variables \textbf{mathematically related} \textit{a priori} (e.g., percentages)?
+    \end{itemize}
 \end{frame}
 
-### When to be Bayesian
+% \begin{frame}{The nightmare-inducing quagmire of NHST}
+%     \begin{figure}
+%         \centering
+%         \includegraphics[width=\textwidth]{figs/The-flow-chart-for-the-selection-of-appropriate-statistical-tests.png}
+%         \caption*{Source: Okinda et al. 2020}
+%     \end{figure}
+% \end{frame}
 
-- Small, sparse, or partial data
-\pause\newline
-- Valuable prior information is available
-\pause\newline
-- Ill-posed inverse problems
-\pause\newline
-- Uncertainty quantification in non-standard models
-\pause\newline
-
-In general, it's good to be Bayesian by default :)
-
-\end{frame}
-
-### Bayes rule
-
-We can prove Bayes rule in just three lines!
-\pause
+\begin{frame}{Why are these methods still widely used?}
+    Institutional and educational inertia
+    \newline\pause
     
-$$ p(A,B) = p(B,A) $$
-\pause
+    Historical availability of software tools
+    \newline\pause
     
-$$ p(A|B)P(B) = p(B|A)p(A) $$
-\pause
- 
-$$ p(A|B) = \frac{p(B|A)p(A)}{p(B)} $$
+    Lack of consensus on alternatives
+    \newline\pause
     
+    Lack of quality control in science (see recent replication crises)
+\end{frame}
+
+\begin{frame}{Recommendations: The Don'ts}
+
+\textbf{Do not} conflate ``statistical significance'' with scientific significance
+\pause\newline
+
+\textbf{Do not} selectively show results based on $p$-values or confidence intervals
+\pause\newline
+
+\textbf{Do not} highlight certain results as "statistically significant" based on their $p$-values or confidence intervals
+
+\textbf{Do not} apply ``cookie-cutter'' statistical analyses without thinking carefully about assumptions
+
+\end{frame}
+
+\begin{frame}{Recommendations: The Dos}
+
+\textbf{Do} be as transparent as possible when reporting statistical results
+\pause\newline
+
+\textbf{Do} prefer problem-specific error metrics and goodness of fit measures like $R^2$ to $p$-values
+\pause\newline
+
+\textbf{Do} use resampling or out-of-sample testing to assess robustness of your results
+\pause\newline
+
+\textbf{Do} prefer Neyman-Pearson hypothesis testing or Bayesian analyses over NHST
+
+\end{frame}
+
+\begin{frame}{When to still be frequentist}
+
+Repeated sampling is a feature of the problem
+\pause\newline
+
+No meaningful prior information is available
+\pause\newline
+
+Sampling distribution and experimental design are well controlled
+\pause\newline
+
+Nonparametric methods for large, high-dimensional datasets
+
+\end{frame}
+
+\begin{frame}{When to be Bayesian}
+
+Small, sparse, or incomplete data
+\pause\newline
+
+Meaningful prior information is available
+\pause\newline
+
+Ill-posed inverse problems
+\pause\newline
+
+Models of interest are complex, nonlinear, or hierarchical
+
+\end{frame}
+
+\begin{frame}{When to be nothing}
+    \centering
+    \begin{quote}
+    If your experiment needs statistics, you ought to have done a better experiment.
+    \end{quote}
+    -- Ernest Rutheford (allegedly)
+\end{frame}
+
+\section{Bayesian inference}
+
+\begin{frame}{Statistical analysis as model building}
+    Much of ``classical'' statistical analysis is usually \textbf{descriptive}
+    \newline\pause
+
+    In contrast, Bayesian modeling is usually \textbf{generative}
+    \newline\pause
+
+    Generative models aim not only to make inferences but to capture key elements of the \textbf{data-generating process}
+    \newline\pause
+
+    Recall that probability distributions encode \textbf{uncertainty}
+    \begin{itemize}
+        \item \textbf{Unobserved variables} $\rightarrow$ Epistemic uncertainty (limited information)
+        \item \textbf{Observed variables} $\rightarrow$ Aleatoric uncertainty (unexplained variability)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Building generative models}
+    Suppose we want to model soil temperature
+    \pause
+    \begin{align*}
+        T_\text{soil} &\sim \mathcal{N}(\mu=\bar{T}_\text{soil} + \beta T_{\text{air}},\, \Sigma = \varepsilon^2 I)\, \\
+        \bar{T}_\text{soil} &\sim \mathcal{N}(\mu=0,\, \sigma^2 = 100)\, \\
+        \beta &\sim \mathcal{N}(\mu=0,\, \sigma^2=1)\, \\
+        \log\varepsilon &\sim \mathcal{N}|(\mu = 0,\, \sigma^2=1)
+    \end{align*}
+
+    The $\beta$ parameter relates $T_\text{soil}$ and $T_\text{air}$
+    \pause
+
+    We could make this model \textit{fully generative} by also modeling $T_\text{air}$
+    \pause
+\end{frame}
+
+\begin{frame}{The Bayesian Workflow}
+    \begin{figure}
+        \centering
+        \vspace{-0.5em}
+        \includegraphics[width=0.45\linewidth]{figs/bayesian_workflow_gelman.png}
+        \caption*{The Bayesian Workflow (Gelman et al. 2020)}
+    \end{figure}
 \end{frame}
 
 % \begin{frame}{Statistical inference via Bayes rule}
-%     Let $\theta$ represent some parameter of interest for a dataset $\mathcal{D}$. Then by Bayes rule:
-%     $$
-%     p(\theta | \mathcal{D}) = \frac{p(\mathcal{D} | \theta)p(\theta)}{p(\mathcal{D})}
-%     $$
-%     \pause
-    
-%     $P(\theta | \mathcal{D})$ is called the \textbf{posterior} distribution over parameters $\theta$.
-%     \pause\newline
-    
-%     $P(\mathcal{D} | \theta)$ is called the \textbf{likelihood} and is a function of $\theta$.
-%     \pause\newline
-    
-%     $P(\theta)$ is called the \textbf{prior} distribution over $\theta$.
-%     \pause\newline
 
-%     $P(\mathcal{D})$ is called the \textbf{marginal likelihood} or \textbf{evidence}.
+
+% Let $A = \theta$ be our unobserved variables of interest and $B = \mathcal{D}$ be our observed data.
+% \pause\newline
+
+% The posterior distribution $\prob(\theta  \mid  \mathcal{D})$ represents our belief or knowledge of $\theta$ after the data has been taken into account.
+% \pause\newline
+
+% $\theta$ can be as simple as a mean or proportion...
+% \pause\newline
+
+% ...or it can be an arbitrarily large set of parameters for a complex model.
+
+
 % \end{frame}
 
-% \begin{frame}{Statistical inference via Bayes rule}
-%     We can also write the marginal likelihood as:
-    
-%     $$p(\mathcal{D}) = \int_{\theta} p(\mathcal{D}|\theta)p(\theta)d\theta= \mathbb{E}_{\theta}[p(\mathcal{D}|\theta)]$$
-%     \pause\newline
-    
-%     Thus, the marginal is the \textbf{expectation} of the likelihood.
-% \end{frame}
+\begin{frame}{Bayesian inference}
 
-% Apparently it's possible to use Markdown via the markdown package. I'm gonna do that now!
+Bayes' rule gives a way to condition the \textbf{unobserved} variables in the model on the \textbf{observed} variables (data):
+$$
+p(\boldsymbol{\theta} \mid \mathbf{y}, \mathbf{x}) \propto p(\mathbf{y} \mid \boldsymbol{\theta},\mathbf{x}) p(\boldsymbol{\theta}\mid\mathbf{x})
+$$
 
-%%begin novalidate
-
-### Statistical inference via Bayes rule
-
-Let $A = \theta$ be our unobserved variables of interest and $B = \mathcal{D}$ be our observed data.
+In the previous example, $\boldsymbol{\theta} = \left[\bar{T}_{\text{soil}}, \beta, \varepsilon \right]$, $\mathbf{y} = T_{\text{soil}}$, and $\mathbf{x} = T_{\text{air}}$
 \pause\newline
 
-The posterior distribution $p(\theta | \mathcal{D})$ represents our belief or knowledge of $\theta$ after the data has been taken into account.
-\pause\newline
+Once we have a summary of $p(\theta  \mid  \mathbf{y},\mathbf{x})$, we can ask straightforward questions like:
+\newline
 
-$\theta$ can be as simple as a mean or proportion...
-\pause\newline
-
-...or it can be an arbitrarily large set of parameters for a complex model.
+What is the probability that the linear effect (slope) $\beta > 0$?
 
 \end{frame}
 
-### Statistical inference via Bayes rule
+\begin{frame}{Maximum likelihood estimation (MLE)}
 
-Once we have a summary of $P(\theta | \mathcal{D})$, we can ask questions like:
-\newline
 
-What is the probability that $\mu > 0$?
-\newline
+Have you ever fitted an OLS line or optimized the mean squared error?
+\pause\newline
 
-What is the probability that $\mu\_1 > \mu_2$ for groups 1 and 2?
-\newline
+Then congratulations, you're familiar with MLE!
+\pause\newline
 
-What is the probability that the slope of a linear regression $\beta > 0$?
+MLE aims to maximize the likelihood function $p(\mathbf{y} \mid \boldsymbol{\theta})$ w.r.t $\boldsymbol{\theta}$.
+\pause\newline
+
+Typically, this is done via the negative log likelihood:
+$$
+\mathcal{L}(\boldsymbol{\theta}) = -\log p(\mathbf{y} \mid \boldsymbol{\theta})
+$$
+
+and solving $\frac{\partial \mathcal{L}}{\partial \boldsymbol{\theta}} = 0$ for $\boldsymbol{\theta}$.
+
 
 \end{frame}
 
-% ### Maximum likelihood estimation (MLE)
+\begin{frame}{Maximum likelihood estimation (MLE)}
 
-% Have you ever fitted an OLS line or optimized the mean squared error?
-% \pause\newline
+Common loss functions you may have used:
 
-% Then congratulations, you're familiar with MLE!
-% \pause\newline
+Mean squared error, $\frac{1}{N}\sum_{i=1}^N (\hat{y}_i - y_i)^2$
+\pause\newline
 
-% MLE aims to maximize the **likelihood function** $P(\mathcal{D}|\theta)$ w.r.t $\theta$.
-% \pause\newline
+Mean absolute error, $\frac{1}{N}\sum_{i=1}^N \lvert \hat{y}_i - y_i\rvert$
+\pause\newline
 
-% Typically, this is done via the **negative log likelihood**:
-% $$
-% \mathcal{L}(\theta) = -\log P(\mathcal{D}|\theta)
-% $$
+Cross entropy, $-\frac{1}{N}\sum_{i=1}^N y_i\log \hat{y_i} + (1-y_i)\log(1-\hat{y}_i)$
+\pause\newline
 
-% and solving $\frac{\partial \mathcal{L}}{\partial \theta} = 0$ for $\theta$.
+All are forms of maximum likelihood
 
-% \end{frame}
+\end{frame}
 
-% ### Maximum likelihood estimation (MLE)
+\begin{frame}{Maximum a posteriori (MAP) estimation}
 
-% Common loss functions you may have used:
-
-% - Mean squared error, $\frac{1}{N}\sum\_{i=1}^N (\hat{y}\_i - y\_i)^2$
-% \pause\newline
-% - Mean absolute error, $\frac{1}{N}\sum\_{i=1}^N |\hat{y}\_i - y\_i|$
-% \pause\newline
-% - Cross entropy, $-\frac{1}{N}\sum\_{i=1}^N y\_i\log \hat{y\_i} + (1-y\_i)\log(1-\hat{y}\_i)$
-% \pause\newline
-
-% All are forms of maximum likelihood.
-
-% \end{frame}
-
-### Maximum a posteriori (MAP) estimation
-
-Recall Bayes rule:
-
-$$
-P(\theta | \mathcal{D}) = \frac{P(\mathcal{D} | \theta)P(\theta)}{P(\mathcal{D})}
-$$
-\pause
-
-**Maximum a posteriori** (MAP) estimation maximizes $P(\theta | \mathcal{D}) \propto P(\mathcal{D} | \theta)P(\theta)$ w.r.t $\theta$.
-\pause
+Maximum a posteriori (MAP) estimation maximizes $p(\boldsymbol{\theta}  \mid  \mathbf{y}) \propto p(\mathbf{y}  \mid  \boldsymbol{\theta})p(\boldsymbol{\theta})$ with respect to $\boldsymbol{\theta}$.
+\pause\newline
 
 Or equivalently, minimizes:
 $$
-\mathcal{L}_{\mathcal{D}}(\theta) = -\log P(\mathcal{D}|\theta) - \log P(\theta)
+\mathcal{L}_{\mathbf{y}}(\boldsymbol{\theta}) = -\log p(\mathbf{y} \mid \boldsymbol{\theta}) - \log p(\boldsymbol{\theta})
 $$
-\pause
+\pause\newline
+
 Notice that maximum likelihood estimation (MLE) is just a special case of MAP.
 
+
 \end{frame}
 
-### Estimating the posterior distribution
+\begin{frame}{Estimating the posterior distribution}
 
-MAP provides a point estimate of $\theta$.
+
+MAP provides a point estimate of $\boldsymbol{\theta}$
 \pause\newline
 
-As Bayesians, we are interested in estimating the full distribution $P(\theta|\mathcal{D})$.
+In Bayesian inference, are (usually) interested in estimating the full distribution $p(\boldsymbol{\theta} \mid \mathbf{y})$
 \pause\newline
+
+The goal is evaluate \textbf{expectations} of the form:
+
+$$
+\mathbb{E}[f(\boldsymbol{\theta})] = \int_\Theta f(\boldsymbol{\theta})p(\boldsymbol{\theta} \mid \mathbf{y})d\boldsymbol{\theta}
+$$
 
 Unfortunately, that's pretty hard!
-$$
-P(\theta | \mathcal{D}) = \frac{P(\mathcal{D} | \theta)P(\theta)}{\int\_\theta P(\mathcal{D}|\theta)P(\theta)d\theta}
-$$
-
-The integral on the bottom is typically intractable for non-trivial models.
+% $$
+% p(\theta  \mid  \mathbf{y}) = \frac{p(\mathbf{y}  \mid  \theta)p(\theta)}{\int_\Theta p(\mathbf{y} \mid \theta)p(\theta)d\theta}
+% $$
 
 \end{frame}
 
-### Markov Chain Monte Carlo
+\begin{frame}{Markov Chain Monte Carlo}
+
 
 Enter... Markov Chain Monte Carlo! (MCMC)
 \pause\newline
 
-Basic idea: Sample numerically via a **random walk** in the space of $\theta$.
+Basic idea: Sample numerically via a random walk in the space of $\boldsymbol{\theta}$
 \pause\newline
 
-In the limit of infinite steps, the path of the walk will follow $P(\theta|\mathcal{D})$.
+In the limit of infinite steps, the path of the walk will follow $p(\boldsymbol{\theta} \mid \mathbf{y})$
 \pause\newline
 
-Unfortunately, this is often quite inefficient.
+Unfortunately, this is often quite inefficient
 \pause\newline
 
-Modern state-of-the-art samplers are typically variants \textbf{Hamiltonian Monte Carlo} (HMC) which require gradients.
+Modern state-of-the-art samplers are typically variants \textbf{Hamiltonian Monte Carlo} (HMC) which use gradient information
+
 
 \end{frame}
 
 % ### Markov Chain Monte Carlo
 
-% Let $f(\theta) = P(\mathcal{D}|\theta)P(\theta)$
+% Let $f(\boldsymbol{\theta}) = P(\mathbf{y} \mid \boldsymbol{\theta})P(\boldsymbol{\theta})$
 % \pause\newline
 
-% 1. Choose some starting point $\theta\_0$.
+% 1. Choose some starting point $\boldsymbol{\theta}_0$.
 % \pause\newline
-% 2. Sample a new *proposed* point $\theta^*$ from a **proposal distribution**.
+% 2. Sample a new *proposed* point $\boldsymbol{\theta}^*$ from a proposal distribution.
 % \pause\newline
-% 3. If $f({\theta}^* ) > f(\theta\_0)$, accept $\theta^*$ as the new starting point.
+% 3. If $f({\boldsymbol{\theta}}^* ) > f(\boldsymbol{\theta}_0)$, accept $\boldsymbol{\theta}^*$ as the new starting point.
 % \pause\newline
-% 4. Otherwise, accept with probability $\frac{f(\theta^*)}{f(\theta\_0)}$ or reject the proposed sample.
+% 4. Otherwise, accept with probability $\frac{f(\boldsymbol{\theta}^*)}{f(\boldsymbol{\theta}_0)}$ or reject the proposed sample.
 
 % \end{frame}
 
-### Hamiltonian Monte Carlo
+\begin{frame}{Hamiltonian Monte Carlo}
 
 \begin{figure}
     \centering
@@ -549,9 +862,10 @@ Modern state-of-the-art samplers are typically variants \textbf{Hamiltonian Mont
 
 \end{frame}
 
-### Interpreting the output
+\begin{frame}{Interpreting the output}
 
-The output of MCMC and HMC algorithms is sequence of samples, typically referred to as a **chain** or a **trace**.
+
+The output of MCMC and HMC algorithms is sequence of samples, typically referred to as a chain or a trace.
 \pause
 
 \begin{figure}
@@ -559,9 +873,8 @@ The output of MCMC and HMC algorithms is sequence of samples, typically referred
     \includegraphics[scale=0.45]{figs/simple_chain.png}
 \end{figure}
 
-\end{frame}
 
-\end{markdown}
+\end{frame}
 
 \begin{frame}{Overview of algorithms for Bayesian inference}
 
@@ -588,7 +901,7 @@ The output of MCMC and HMC algorithms is sequence of samples, typically referred
              \hline
              MCMC & \numrange{e4}{e6} & No & No & Yes \\
              HMC & \numrange{e3}{e5} & Yes & No & Yes \\
-             VI & \numrange{e2}{e4} & Yes & Batch & No \\
+             VI & \numrange{e2}{e4} & Yes & Partially & No \\
              SMC & \numrange{e3}{e5} & No & Yes & Yes \\
              EKS & \numrange{e3}{e4} & No & Yes & Gaussian \\
              % IS & \numrange{e1}{e3} & No & Yes & No \\
@@ -625,34 +938,70 @@ The output of MCMC and HMC algorithms is sequence of samples, typically referred
 
 \end{frame}
 
-\begin{markdown}
 
-### Limitations and challenges
-Bayesian inference provides a flexible and intuitive framework for solving inverse problems and building generative models... **but**
-\pause
+\begin{frame}{Key limitations and challenges}
+Bayesian inference provides a flexible and intuitive framework for solving inverse problems and building generative models...
 
-- Choosing good priors can be difficult.
-\pause\newline
-- MCMC is computationally expensive, especially with large numbers of parameters.
-\pause\newline
-- Practical analysis of the inference results can be time consuming.
-\pause\newline
-- Software support is not as comprehensive as for ``classical'' frequentist analyses.
-
-\end{frame}
-
-### Coming up next...
-- Probabilistic programming
-\pause\newline
-- Bayesian generalized linear models
-\pause\newline
-- Model diagnostics and criticism
-\pause\newline
-- Example application to observational time series data from the Arctic
+\begin{itemize}[<+->]
+    \item Choosing good priors can be difficult
+    \newline
+    \item MCMC is computationally expensive, especially for copmlex models
+    \newline
+    \item Practical analysis of the inference results can be time consuming
+    \newline
+    \item Software support
+\end{itemize}
 
 \end{frame}
 
-\end{markdown}
+\begin{frame}{Software tools for Bayesian inference}
+    Modern Bayesian workflows are implemetned using \textbf{probabilistic programming languages} (PPLs)
+    \pause\newline
+
+    \begin{columns}[t]
+        \begin{column}{0.3\linewidth}
+            \textbf{Python}
+            \begin{itemize}
+                \item \texttt{PyMC} and \texttt{bambi}
+                \item \texttt{pyro} (pytorch)
+                \item \texttt{numpyro} (JAX)
+                \item \texttt{arviz} (plotting)
+            \end{itemize}
+        \end{column}
+
+        \begin{column}{0.3\linewidth}
+            \textbf{R}
+            \begin{itemize}
+                \item \texttt{rstan} and \texttt{brms}
+                \item \texttt{tidybayes} (plotting)
+            \end{itemize}
+        \end{column}
+
+        \begin{column}{0.3\linewidth}
+            \textbf{Julia}
+            \begin{itemize}
+                \item \texttt{Turing.jl}
+                \item \texttt{Gen.jl}
+                \item \texttt{ArviZ.jl} (plotting)
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+% \begin{frame}{Coming up next...}
+
+% Probabilistic programming
+% \pause\newline
+
+% Bayesian generalized linear models
+% \pause\newline
+
+% Model diagnostics and criticism
+% \pause\newline
+
+% Example application to time series data
+
+% \end{frame}
 
 \section{Part II: Bayes by example}
 
@@ -711,7 +1060,7 @@ You can directly open these notebooks on Google Colab if you do not want to both
 % \begin{frame}{A brief review of probability theory}
 %     \textbf{Multiplication rule}
 
-%     $ P(A\cap B) = P(A,B) = P(A|B)P(B) $
+%     $ P(A\cap B) = P(A,B) = P(A \mid B)P(B) $
 %     \pause\newline
     
 %     \textbf{Addition rule}
@@ -721,25 +1070,25 @@ You can directly open these notebooks on Google Colab if you do not want to both
     
 %     \textbf{Independence}
     
-%     $ P(A | B) = P(A)$ if and only if $A$ and $B$ are \textbf{independent}.
+%     $ P(A  \mid  B) = P(A)$ if and only if $A$ and $B$ are \textbf{independent}.
     
-%     $ P(A | B) = P(A) \leftrightarrow P(A,B) = P(A)P(B)$
+%     $ P(A  \mid  B) = P(A) \leftrightarrow P(A,B) = P(A)P(B)$
 % \end{frame}
 
 % \begin{frame}{A brief review of probability theory}
 %     \textbf{Law of total probability}
 
-%     $P(A) = P(A|B)P(B) + P(A|\neg B)P(\neg B)$
+%     $P(A) = P(A \mid B)P(B) + P(A \mid \neg B)P(\neg B)$
 %     \pause\newline
     
 %     \textbf{The chain rule of probability}
 
-%     $P(A,B,C) = P(A|B,C)P(B|C)P(C)$
+%     $P(A,B,C) = P(A \mid B,C)P(B \mid C)P(C)$
 %     \pause
     
 %     or more generally:
     
-%     $P(X_1,\dots,X_k) = P(X_1)\prod_{i=2}^{k} P(X_{i}|X_{i-1},\dots,X_1)$
+%     $P(X_1,\dots,X_k) = P(X_1)\prod_{i=2}^{k} P(X_{i} \mid X_{i-1},\dots,X_1)$
 % \end{frame}
 
 % \begin{frame}{Random variables}
